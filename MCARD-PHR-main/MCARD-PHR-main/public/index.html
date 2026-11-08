@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCARD-PHR — Patient & Admin</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="styles.css?v=4">
+</head>
+
+<body class="portal">
+
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Sidebar toggle (mobile) -->
+    <button class="sidebar-toggle" id="sidebarToggle" aria-label="Menu">
+        <i class="fa-solid fa-bars"></i>
+    </button>
+
+    <!-- Sidebar (populated by sidebar.js) -->
+    <aside class="sidebar" id="sidebar"></aside>
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <main class="main-content" id="mainContent">
+
+        <!-- ================= GUEST HOME ================= -->
+        <section id="homePage" class="page">
+            <div class="hero">
+                <div class="hero-copy">
+                    <span class="eyebrow">
+                        <i class="fa-solid fa-shield-heart"></i>
+                        <span data-i18n="hero.eyebrow">Personal health organizer</span>
+                    </span>
+                    <h1>
+                        <span data-i18n="hero.title.part1">Your Health,</span><br>
+                        <span data-i18n="hero.title.part2">Our Responsibility.</span>
+                    </h1>
+                    <p data-i18n="hero.description">Keep your health records, prescriptions, appointments, and emergency
+                        contact in one secure place. Doctors and pharmacies can now collaborate through MCARD-PHR.</p>
+                    <div class="hero-actions">
+                        <button class="btn btn-primary" onclick="showPage('register')">
+                            <span data-i18n="hero.getStarted">Get Started</span> <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                        <button class="btn btn-outline" onclick="showPage('doctorLogin')">
+                            <i class="fa-solid fa-user-doctor"></i> <span data-i18n="hero.doctorLogin">Doctor
+                                Login</span>
+                        </button>
+                        <button class="btn btn-outline" onclick="showPage('pharmacyLogin')">
+                            <i class="fa-solid fa-prescription-bottle-medical"></i> <span
+                                data-i18n="hero.pharmacyLogin">Pharmacy Login</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="hero-card">
+                    <div class="medical-orb"><i class="fa-solid fa-heart-pulse"></i></div>
+                    <div class="mini-stat">
+                        <i class="fa-solid fa-file-prescription"></i>
+                        <div><b>Reports</b><small>All in one place</small></div>
+                    </div>
+                    <div class="mini-stat">
+                        <i class="fa-solid fa-qrcode"></i>
+                        <div><b>Emergency QR</b><small>Quick contact access</small></div>
+                    </div>
+                    <div class="mini-stat">
+                        <i class="fa-solid fa-id-card"></i>
+                        <div><b>MCard ID</b><small>Unique health identity</small></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="feature-grid">
+                <article class="feature-card">
+                    <div class="feature-icon"><i class="fa-solid fa-user-shield"></i></div>
+                    <h3>Personal Profile</h3>
+                    <p>Contact, address, allergy and emergency information all in one place.</p>
+                </article>
+                <article class="feature-card">
+                    <div class="feature-icon lavender"><i class="fa-solid fa-user-doctor"></i></div>
+                    <h3>Direct Doctor Requests</h3>
+                    <p>Send appointment requests straight to your preferred doctor.</p>
+                </article>
+                <article class="feature-card">
+                    <div class="feature-icon coral"><i class="fa-solid fa-prescription-bottle-medical"></i></div>
+                    <h3>Pharmacy Integration</h3>
+                    <p>Any pharmacy can scan your MCard and see your prescriptions instantly.</p>
+                </article>
+            </div>
+        </section>
+
+        <!-- ================= LOGIN ================= -->
+        <section id="loginPage" class="page">
+            <div class="auth-shell">
+                <div class="auth-card">
+                    <div class="auth-icon"><i class="fa-solid fa-right-to-bracket"></i></div>
+                    <h2 data-i18n="auth.login.title">Welcome back</h2>
+                    <p data-i18n="auth.login.subtitle">Sign in to your MCARD-PHR account.</p>
+                    <form id="loginForm">
+                        <label>
+                            <span data-i18n="auth.emailOrMobile">Email or mobile number</span>
+                            <input id="loginIdentifier" required autocomplete="username">
+                        </label>
+                        <label>
+                            <span data-i18n="auth.password">Password</span>
+                            <input id="loginPassword" type="password" required autocomplete="current-password">
+                        </label>
+                        <button class="btn btn-primary full" type="submit">
+                            Login <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </form>
+                    <p class="form-footer">
+                        Don't have an account?
+                        <button type="button" class="text-btn" onclick="showPage('register')">Create one</button>
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= REGISTER ================= -->
+        <section id="registerPage" class="page">
+            <div class="page-header">
+                <span class="eyebrow"><i class="fa-solid fa-user-plus"></i> New account</span>
+                <h1>Create your MCARD-PHR profile</h1>
+                <p>Your account will be reviewed by the administrator before use.</p>
+            </div>
+
+            <form id="registerForm" class="form-card">
+                <div class="form-section-title"><i class="fa-solid fa-user"></i> Personal information</div>
+                <div class="form-grid">
+                    <label><span data-i18n="auth.fullName">Full name</span> <input id="fullName" required
+                            maxlength="100"></label>
+                    <label><span data-i18n="auth.mobile">Mobile number</span> <input id="mobile" required
+                            maxlength="30"></label>
+                    <label><span data-i18n="auth.email">Email</span> <input id="email" type="email" required
+                            maxlength="150"></label>
+                    <label><span data-i18n="auth.dateOfBirth">Date of birth</span> <input id="dateOfBirth" type="date"
+                            required></label>
+                    <label>
+                        <span data-i18n="auth.bloodGroup">Blood group</span>
+                        <select id="bloodGroup">
+                            <option value="">— Select —</option>
+                            <option>A+</option>
+                            <option>A-</option>
+                            <option>B+</option>
+                            <option>B-</option>
+                            <option>AB+</option>
+                            <option>AB-</option>
+                            <option>O+</option>
+                            <option>O-</option>
+                        </select>
+                    </label>
+                    <label><span data-i18n="auth.homeAddress">Home address</span> <textarea id="homeAddress" rows="2"
+                            required></textarea></label>
+                    <label><span data-i18n="auth.permanentAddress">Permanent address</span> <textarea
+                            id="permanentAddress" rows="2" required></textarea></label>
+                    <label><span data-i18n="auth.diseases">Diseases / allergies</span> <textarea id="diseases"
+                            rows="2"></textarea></label>
+                </div>
+
+                <div class="form-section-title">
+                    <i class="fa-solid fa-phone-volume"></i>
+                    <span data-i18n="auth.section.emergency">Emergency contact</span>
+                </div>
+                <div class="form-grid">
+                    <label><span data-i18n="auth.emergencyName">Emergency contact name</span> <input id="emergencyName"
+                            required maxlength="100"></label>
+                    <label><span data-i18n="auth.emergencyNumber">Emergency contact number</span> <input
+                            id="emergencyNumber" required maxlength="30"></label>
+                </div>
+
+                <div class="form-section-title">
+                    <i class="fa-solid fa-lock"></i>
+                    <span data-i18n="auth.section.security">Account security</span>
+                </div>
+                <div class="form-grid">
+                    <label><span data-i18n="auth.password">Password</span> <input id="registerPassword" type="password"
+                            required minlength="6"></label>
+                    <label><span data-i18n="auth.profilePicture">Profile picture (optional)</span> <input
+                            id="profilePicture" type="file" accept="image/*"></label>
+                </div>
+
+                <div class="notice warning">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <span>Prototype only. Do not use for real patient data without proper security and legal
+                        review.</span>
+                </div>
+
+                <button class="btn btn-primary" type="submit">
+                    <span data-i18n="auth.submit">Submit for Approval</span> <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </form>
+        </section>
+
+        <!-- ================= DOCTOR LOGIN ================= -->
+        <section id="doctorLoginPage" class="page">
+            <div class="auth-shell">
+                <div class="auth-card">
+                    <div class="auth-icon"><i class="fa-solid fa-user-doctor"></i></div>
+                    <h2>Doctor Login</h2>
+                    <p>Sign in to access your patient requests.</p>
+                    <form id="doctorLoginForm">
+                        <label>Email
+                            <input id="docLoginEmail" type="email" required>
+                        </label>
+                        <label>Password
+                            <input id="docLoginPassword" type="password" required>
+                        </label>
+                        <button class="btn btn-primary full" type="submit">
+                            Login <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </form>
+                    <p class="form-footer">
+                        New doctor?
+                        <button type="button" class="text-btn" onclick="showPage('doctorRegister')">Register
+                            here</button>
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= DOCTOR REGISTER ================= -->
+        <section id="doctorRegisterPage" class="page">
+            <div class="page-header">
+                <span class="eyebrow"><i class="fa-solid fa-user-doctor"></i> Doctor registration</span>
+                <h1>Join MCARD-PHR as a Doctor</h1>
+                <p>Fill in your details. Admin approval is required before login.</p>
+            </div>
+
+            <form id="doctorRegisterForm" class="form-card">
+                <div class="form-grid">
+                    <label>Full name <input id="drFullName" required></label>
+                    <label>Email <input id="drEmail" type="email" required></label>
+                    <label>Password <input id="drPassword" type="password" required minlength="6"></label>
+                    <label>Degree <input id="drDegree" placeholder="e.g. MBBS, FCPS"></label>
+                    <label>Profession <input id="drProfession" placeholder="e.g. Cardiologist"></label>
+                    <label>Specialization <input id="drSpecialization"></label>
+                    <label>Last worked place <input id="drLastWorked"></label>
+                    <label>Experience (years) <input id="drExperience" type="number" min="0"></label>
+                    <label>License number <input id="drLicense"></label>
+                    <label>Consultation fee <input id="drFee" type="number" step="0.01" min="0"></label>
+                    <label>Profile picture <input id="drPicture" type="file" accept="image/*"></label>
+                    <label>Short bio <textarea id="drBio" rows="3"></textarea></label>
+                </div>
+                <button class="btn btn-primary" type="submit">
+                    Submit for Approval <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </form>
+        </section>
+
+        <!-- ================= PHARMACY LOGIN ================= -->
+        <section id="pharmacyLoginPage" class="page">
+            <div class="auth-shell">
+                <div class="auth-card">
+                    <div class="auth-icon"><i class="fa-solid fa-prescription-bottle-medical"></i></div>
+                    <h2>Pharmacy Login</h2>
+                    <p>Access your inventory and patient prescriptions.</p>
+                    <form id="pharmacyLoginForm">
+                        <label>Email
+                            <input id="phLoginEmail" type="email" required>
+                        </label>
+                        <label>Password
+                            <input id="phLoginPassword" type="password" required>
+                        </label>
+                        <button class="btn btn-primary full" type="submit">
+                            Login <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </form>
+                    <p class="form-footer">
+                        New pharmacy?
+                        <button type="button" class="text-btn" onclick="showPage('pharmacyRegister')">Register
+                            here</button>
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= PHARMACY REGISTER ================= -->
+        <section id="pharmacyRegisterPage" class="page">
+            <div class="page-header">
+                <span class="eyebrow"><i class="fa-solid fa-prescription-bottle-medical"></i> Pharmacy
+                    registration</span>
+                <h1>Register your Pharmacy</h1>
+                <p>Admin approval is required before login.</p>
+            </div>
+
+            <form id="pharmacyRegisterForm" class="form-card">
+                <div class="form-grid">
+                    <label>Pharmacy name <input id="phName" required></label>
+                    <label>Email <input id="phEmail" type="email" required></label>
+                    <label>Password <input id="phPassword" type="password" required minlength="6"></label>
+                    <label>License number <input id="phLicense"></label>
+                    <label>Phone <input id="phPhone"></label>
+                    <label>Address <textarea id="phAddress" rows="2"></textarea></label>
+                </div>
+                <button class="btn btn-primary" type="submit">
+                    Submit for Approval <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </form>
+        </section>
+
+        <!-- ================= LOGGED-IN PATIENT HOME ================= -->
+        <section id="patientHomePage" class="page">
+            <div class="home-user-hero">
+                <img id="homeAvatar" class="home-avatar" src="" alt="Profile">
+                <div class="home-user-hero-text">
+                    <h2 id="homeWelcome">Welcome back!</h2>
+                    <p>Your health information is safe and organized.</p>
+                    <div class="mcard-badge" id="homeMcardBadge">
+                        <i class="fa-solid fa-id-card"></i>
+                        <span>—</span>
+                    </div>
+                </div>
+                <button class="btn" onclick="showPage('dashboard')">
+                    Dashboard <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+
+            <div id="homeMedsBox" class="home-meds-box">
+                <div class="home-meds-header">
+                    <div>
+                        <span class="eyebrow"><i class="fa-solid fa-pills"></i> Today's pending medicines</span>
+                        <h3 id="homeMedsTitle">Loading...</h3>
+                    </div>
+                    <button class="btn btn-soft" onclick="showPage('medicines')">
+                        Manage <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+                <div id="homeMedsList" class="home-meds-list"></div>
+            </div>
+        </section>
+
+        <!-- ================= DASHBOARD ================= -->
+        <!-- ================= DASHBOARD ================= -->
+<section id="dashboardPage" class="page">
+    <div class="page-header-row">
+        <div class="flex-align-center-gap-16">
+            <img id="dashboardAvatar" class="home-avatar dashboard-avatar-img" src="" alt="Profile">
+            <div>
+                <span class="eyebrow" data-i18n="dash.eyebrow">Patient dashboard</span>
+                <h1 id="welcomeTitle" data-i18n="dash.welcome">Welcome</h1>
+                <p id="approvalText" data-i18n="dash.approved">Your account is approved. Keep your info up to date.</p>
+                <div class="patient-id-badge">
+                    <i class="fa-solid fa-id-card"></i>
+                    <span id="userIdText">—</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+        <button class="dashboard-card" onclick="showPage('reports')">
+            <span class="card-icon"><i class="fa-solid fa-folder-open"></i></span>
+            <div>
+                <h3 data-i18n="dash.showReports">Show all reports</h3>
+                <p data-i18n="dash.showReportsDesc">View your prescription and test reports.</p>
+            </div>
+            <i class="fa-solid fa-chevron-right arrow"></i>
+        </button>
+        <button class="dashboard-card" onclick="downloadMCard()">
+            <span class="card-icon coral"><i class="fa-solid fa-id-card"></i></span>
+            <div>
+                <h3 data-i18n="dash.downloadMCard">Download MCard</h3>
+                <p data-i18n="dash.downloadMCardDesc">Printable PDF with your QR code.</p>
+            </div>
+            <i class="fa-solid fa-chevron-right arrow"></i>
+        </button>
+        <button class="dashboard-card" onclick="showPage('medicines')">
+            <span class="card-icon coral"><i class="fa-solid fa-pills"></i></span>
+            <div>
+                <h3 data-i18n="dash.medicines">Medicines</h3>
+                <p data-i18n="dash.medicinesDesc">Track daily doses and remaining pills.</p>
+            </div>
+            <i class="fa-solid fa-chevron-right arrow"></i>
+        </button>
+        <button class="dashboard-card" onclick="showPage('addReport')">
+            <span class="card-icon lavender"><i class="fa-solid fa-file-circle-plus"></i></span>
+            <div>
+                <h3 data-i18n="dash.addReport">Add report</h3>
+                <p data-i18n="dash.addReportDesc">Upload a new prescription.</p>
+            </div>
+            <i class="fa-solid fa-chevron-right arrow"></i>
+        </button>
+        <button class="dashboard-card" onclick="showPage('appointments')">
+            <span class="card-icon"><i class="fa-solid fa-calendar-check"></i></span>
+            <div>
+                <h3 data-i18n="dash.appointments">Appointments</h3>
+                <p data-i18n="dash.appointmentsDesc">Personal reminders + doctor requests.</p>
+            </div>
+            <i class="fa-solid fa-chevron-right arrow"></i>
+        </button>
+        <button class="dashboard-card" onclick="showPage('doctors')">
+            <span class="card-icon lavender"><i class="fa-solid fa-user-doctor"></i></span>
+            <div>
+                <h3 data-i18n="dash.findDoctors">Find Doctors</h3>
+                <p data-i18n="dash.findDoctorsDesc">Browse doctors and request appointments.</p>
+            </div>
+            <i class="fa-solid fa-chevron-right arrow"></i>
+        </button>
+        <button class="dashboard-card" onclick="showPage('summary')">
+            <span class="card-icon"><i class="fa-solid fa-clipboard-list"></i></span>
+            <div>
+                <h3 data-i18n="dash.summary">Summary</h3>
+                <p data-i18n="dash.summaryDesc">Visited doctors + prescribed medicines.</p>
+            </div>
+            <i class="fa-solid fa-chevron-right arrow"></i>
+        </button>
+        <button class="dashboard-card" onclick="showPage('trends')">
+            <span class="card-icon lavender"><i class="fa-solid fa-chart-line"></i></span>
+            <div>
+                <h3 data-i18n="dash.trends">Health Trends</h3>
+                <p data-i18n="dash.trendsDesc">Charts for vitals over time.</p>
+            </div>
+            <i class="fa-solid fa-chevron-right arrow"></i>
+        </button>
+    </div>
+
+    <div id="profileCompleteness" class="mt-22"></div>
+</section>
+
+        <!-- ================= EDIT PROFILE ================= -->
+        <section id="editProfilePage" class="page">
+            <div class="page-header">
+                <span class="eyebrow"><i class="fa-solid fa-user-pen"></i> Account</span>
+                <h1>Edit My Profile</h1>
+                <p>Update your personal and medical information.</p>
+            </div>
+            <div id="profileEditPanel" class="panel"></div>
+        </section>
+
+        <!-- ================= REPORTS ================= -->
+        <section id="reportsPage" class="page">
+            <div class="page-header-row">
+                <div>
+                    <span class="eyebrow"><i class="fa-solid fa-folder-open"></i> Medical records</span>
+                    <h1>All Reports</h1>
+                    <p>View your prescription and test reports.</p>
+                </div>
+                <div class="page-actions">
+                    <button class="btn btn-soft" onclick="showPage('dashboard')"><i class="fa-solid fa-arrow-left"></i>
+                        Back</button>
+                    <button class="btn btn-primary" onclick="showPage('addReport')"><i class="fa-solid fa-plus"></i> Add
+                        Report</button>
+                </div>
+            </div>
+            <div id="reportsPanel" class="panel"></div>
+        </section>
+
+        <!-- ================= ADD REPORT ================= -->
+        <section id="addReportPage" class="page">
+            <div class="page-header">
+                <span class="eyebrow"><i class="fa-solid fa-file-circle-plus"></i> New report</span>
+                <h1>Add Prescription Report</h1>
+                <p>Upload prescription and test images.</p>
+            </div>
+            <div id="reportFormPanel" class="panel"></div>
+        </section>
+
+        <!-- ================= APPOINTMENTS ================= -->
+        <section id="appointmentsPage" class="page">
+            <div class="page-header-row">
+                <div>
+                    <span class="eyebrow"><i class="fa-solid fa-calendar-check"></i> Schedule</span>
+                    <h1>My Appointments</h1>
+                    <p>Personal reminders and doctor requests.</p>
+                </div>
+                <div class="page-actions">
+                    <button class="btn btn-soft" onclick="openAddAppointment()"><i class="fa-solid fa-plus"></i>
+                        Personal reminder</button>
+                    <button class="btn btn-primary" onclick="showPage('doctors')"><i
+                            class="fa-solid fa-user-doctor"></i> Request a doctor</button>
+                </div>
+            </div>
+            <div id="appointmentsPanel" class="panel"></div>
+        </section>
+
+        <!-- ================= FIND DOCTORS ================= -->
+        <section id="doctorsPage" class="page">
+            <div class="page-header-row">
+                <div>
+                    <span class="eyebrow"><i class="fa-solid fa-user-doctor"></i> Doctor directory</span>
+                    <h1>Find a Doctor</h1>
+                    <p>Browse doctors and request an appointment.</p>
+                </div>
+                <input type="text" id="doctorSearchInput" placeholder="Search by name or specialty..."
+                    class="doctor-search-input">
+            </div>
+            <div id="doctorsList" class="doctor-grid"></div>
+        </section>
+
+        <!-- ================= MEDICINES ================= -->
+        <section id="medicinesPage" class="page">
+            <div class="page-header-row">
+                <div>
+                    <span class="eyebrow"><i class="fa-solid fa-pills"></i> Prescriptions</span>
+                    <h1>My Medicines</h1>
+                    <p>Track daily doses and see what's left.</p>
+                </div>
+                <button class="btn btn-primary" onclick="openAddMedicine()"><i class="fa-solid fa-plus"></i> Add
+                    Medicine</button>
+            </div>
+            <div class="panel">
+                <div class="panel-heading">
+                    <h3><i class="fa-solid fa-calendar-day"></i> Today's doses</h3>
+                    <span class="badge" id="todayCountBadge">0</span>
+                </div>
+                <div id="todayList"></div>
+            </div>
+            <div class="panel">
+                <div class="panel-heading">
+                    <h3>All medicines</h3>
+                    <span class="badge" id="medicinesCountBadge">0</span>
+                </div>
+                <div id="medicinesList"></div>
+            </div>
+        </section>
+
+        <!-- ================= HEALTH TRENDS ================= -->
+        <section id="trendsPage" class="page">
+            <div class="page-header-row">
+                <div>
+                    <span class="eyebrow"><i class="fa-solid fa-chart-line"></i> Health metrics</span>
+                    <h1>Health Trends</h1>
+                    <p>Track your vitals over time.</p>
+                </div>
+                <button class="btn btn-primary" onclick="openAddMetric()"><i class="fa-solid fa-plus"></i> Add
+                    Reading</button>
+            </div>
+
+            <div class="panel">
+                <div class="panel-heading">
+                    <h3>Metric</h3>
+                    <div class="metric-tabs" id="metricTabs"></div>
+                </div>
+                <div class="range-picker">
+                    <button class="range-btn active" data-days="7">7 days</button>
+                    <button class="range-btn" data-days="30">30 days</button>
+                    <button class="range-btn" data-days="90">90 days</button>
+                    <button class="range-btn" data-days="365">1 year</button>
+                    <button class="range-btn" data-days="0">All</button>
+                </div>
+                <div class="chart-wrap">
+                    <canvas id="metricsChart"></canvas>
+                    <div id="chartEmpty" class="chart-empty hidden">
+                        <i class="fa-solid fa-chart-simple"></i>
+                        <p>No readings yet for this metric.</p>
+                    </div>
+                </div>
+                <div class="chart-stats" id="chartStats"></div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-heading">
+                    <h3>Recent readings</h3>
+                </div>
+                <div id="metricsList"></div>
+            </div>
+        </section>
+
+        <!-- ================= SUMMARY ================= -->
+        <section id="summaryPage" class="page">
+            <div class="page-header">
+                <span class="eyebrow"><i class="fa-solid fa-clipboard-list"></i> Health history</span>
+                <h1>Medical Summary</h1>
+                <p>All doctors you've visited and all medicines prescribed to you.</p>
+            </div>
+
+            <div class="panel">
+                <div class="summary-block">
+                    <h3><i class="fa-solid fa-user-doctor"></i> Visited Doctors</h3>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Doctor</th>
+                                    <th>Degree</th>
+                                    <th>Specialization</th>
+                                    <th>Last worked place</th>
+                                    <th>Visit date</th>
+                                </tr>
+                            </thead>
+                            <tbody id="summaryDoctorsBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="summary-block">
+                    <h3><i class="fa-solid fa-prescription"></i> Prescribed Medicines</h3>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Medicine</th>
+                                    <th>Doctor</th>
+                                    <th>Dosage</th>
+                                    <th>Duration</th>
+                                    <th>Prescribed on</th>
+                                    <th>Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody id="summaryPrescriptionsBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= MCARD ================= -->
+        <section id="mcardPage" class="page">
+            <div class="page-header-row">
+                <div>
+                    <span class="eyebrow"><i class="fa-solid fa-id-card"></i> Health identity</span>
+                    <h1>My MCard</h1>
+                    <p>Download or print your unique MCard PDF.</p>
+                </div>
+                <button class="btn btn-primary" onclick="downloadMCard()">
+                    <i class="fa-solid fa-download"></i> Download PDF
+                </button>
+            </div>
+
+            <div class="panel" id="mcardPanel">
+                <div class="loading-box">
+                    <i class="fa-solid fa-spinner fa-spin"></i>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= SETTINGS ================= -->
+        <section id="settingsPage" class="page">
+            <div class="page-header">
+                <span class="eyebrow"><i class="fa-solid fa-sliders"></i> Appearance</span>
+                <h1>Customize MCARD-PHR</h1>
+                <p>Change appearance and text size.</p>
+            </div>
+
+            <div class="settings-grid">
+                <div class="settings-card">
+                    <div class="settings-icon"><i class="fa-solid fa-moon"></i></div>
+                    <div class="settings-info">
+                        <h3>Dark mode</h3>
+                        <p>Switch light/dark appearance.</p>
+                    </div>
+                    <button id="themeToggle" class="toggle-btn" onclick="toggleDarkMode()" type="button">
+                        <span class="toggle-circle"></span>
+                    </button>
+                </div>
+
+                <div class="settings-card">
+                    <div class="settings-icon lavender-settings"><i class="fa-solid fa-text-height"></i></div>
+                    <div class="settings-info">
+                        <h3>Font size</h3>
+                        <p>Adjust global text size.</p>
+                    </div>
+                    <div class="font-controls">
+                        <button onclick="changeFontSize(-1)">A−</button>
+                        <button onclick="resetFontSize()">A</button>
+                        <button onclick="changeFontSize(1)">A+</button>
+                    </div>
+                </div>
+
+                <div class="settings-preview">
+                    <i class="fa-solid fa-eye"></i>
+                    <div><strong>Text preview</strong>
+                        <p id="fontSizeDisplay">Normal font size</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================ -->
+        <!-- ================= ADMIN PAGES ============================== -->
+        <!-- ============================================================ -->
+
+        <section id="adminOverviewPage" class="page">
+            <div class="page-header">
+                <span class="eyebrow"><i class="fa-solid fa-gauge"></i> Administrator</span>
+                <h1>Overview</h1>
+                <p>At-a-glance statistics across MCARD-PHR.</p>
+            </div>
+            <div id="adminStats" class="admin-stats"></div>
+        </section>
+
+        <section id="adminUsersPage" class="page">
+            <div class="page-header-row">
+                <div>
+                    <span class="eyebrow"><i class="fa-solid fa-users"></i> Patients</span>
+                    <h1>Patient Accounts</h1>
+                    <p>Approve, inspect and manage patient users.</p>
+                </div>
+                <button class="btn btn-soft" onclick="loadAdminUsers()"><i class="fa-solid fa-rotate"></i>
+                    Refresh</button>
+            </div>
+
+            <div class="panel">
+                <div class="panel-heading">
+                    <h3>All patients</h3>
+                    <span class="badge" id="userCountBadge">0</span>
+                </div>
+                <div class="admin-search-wrap">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="adminSearchInput" placeholder="Search by name, email, mobile, MCard ID..."
+                        autocomplete="off">
+                    <button type="button" id="adminSearchClear" class="admin-search-clear hidden" aria-label="Clear">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Mobile</th>
+                                <th>MCard ID</th>
+                                <th>Status</th>
+                                <th>Created</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminUsersBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="adminUserDetailPanel"></div>
+        </section>
+
+        <section id="adminDoctorsPage" class="page">
+            <div class="page-header-row">
+                <div>
+                    <span class="eyebrow"><i class="fa-solid fa-user-doctor"></i> Doctors</span>
+                    <h1>Doctor Accounts</h1>
+                    <p>Approve, disable, or remove doctors.</p>
+                </div>
+                <button class="btn btn-soft" onclick="loadAdminDoctors()"><i class="fa-solid fa-rotate"></i>
+                    Refresh</button>
+            </div>
+
+            <div class="panel">
+                <div class="panel-heading">
+                    <h3>All doctors</h3>
+                    <span class="badge" id="doctorCountBadge">0</span>
+                </div>
+                <div class="admin-search-wrap">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="doctorSearchInputAdmin" placeholder="Search by name, email, profession...">
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Profession</th>
+                                <th>Email</th>
+                                <th>Patients</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminDoctorsBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="adminPharmaciesPage" class="page">
+            <div class="page-header-row">
+                <div>
+                    <span class="eyebrow"><i class="fa-solid fa-prescription-bottle-medical"></i> Pharmacies</span>
+                    <h1>Pharmacy Accounts</h1>
+                    <p>Approve, disable, or remove pharmacies.</p>
+                </div>
+                <button class="btn btn-soft" onclick="loadAdminPharmacies()"><i class="fa-solid fa-rotate"></i>
+                    Refresh</button>
+            </div>
+
+            <div class="panel">
+                <div class="panel-heading">
+                    <h3>All pharmacies</h3>
+                    <span class="badge" id="pharmacyCountBadge">0</span>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Pharmacy</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Medicines</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminPharmaciesBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Chat FAB -->
+    <button id="chatFab" class="chat-fab hidden" aria-label="AI assistant">
+        <i class="fa-solid fa-comment-dots"></i>
+    </button>
+    <div id="chatWindow" class="chat-window hidden">
+        <div class="chat-header">
+            <div class="chat-header-info">
+                <div class="chat-avatar"><i class="fa-solid fa-robot"></i></div>
+                <div><strong>MCARD-PHR Assistant</strong><small id="chatStatusText">Ask about your data</small></div>
+            </div>
+            <div class="chat-header-actions">
+                <button id="chatSpeakerToggle" class="chat-header-btn" type="button"><i
+                        class="fa-solid fa-volume-xmark"></i></button>
+                <button id="chatClose" class="chat-close"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+        </div>
+        <div id="chatMessages" class="chat-messages"></div>
+        <div class="chat-suggestions" id="chatSuggestions"></div>
+        <form id="chatForm" class="chat-input-row">
+            <input id="chatInput" type="text" placeholder="Ask about medicines, appointments..." autocomplete="off">
+            <button type="button" id="chatMic" class="chat-mic"><i class="fa-solid fa-microphone"></i></button>
+            <button type="submit" id="chatSend"><i class="fa-solid fa-paper-plane"></i></button>
+        </form>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="i18n.js"></script>
+    <script src="sidebar.js"></script>
+    <script src="app.js"></script>
+    <script src="admin.js"></script>
+
+</body>
+
+</html>

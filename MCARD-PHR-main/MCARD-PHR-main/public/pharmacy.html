@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MCARD-PHR — Pharmacy Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="styles.css?v=4">
+</head>
+
+<body>
+
+<div id="toastContainer" class="toast-container"></div>
+
+<button class="sidebar-toggle" id="sidebarToggle" aria-label="Menu">
+    <i class="fa-solid fa-bars"></i>
+</button>
+
+<aside class="sidebar" id="sidebar"></aside>
+<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+<main class="main-content" id="mainContent">
+   
+
+    <section id="pharmacyLoginPage" class="page">
+        <div class="auth-shell">
+            <div class="auth-card">
+                <div class="auth-icon"><i class="fa-solid fa-prescription-bottle-medical"></i></div>
+                <h2>Pharmacy Login</h2>
+                <p>Access your inventory and prescriptions.</p>
+                <form id="pharmacyLoginForm">
+                    <label>Email <input id="phLoginEmail" type="email" required></label>
+                    <label>Password <input id="phLoginPassword" type="password" required></label>
+                    <button class="btn btn-primary full" type="submit">Login <i class="fa-solid fa-arrow-right"></i></button>
+                </form>
+                <p class="form-footer">
+                    New pharmacy?
+                    <button type="button" class="text-btn" onclick="showPage('pharmacyRegister')">Register here</button>
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="pharmacyRegisterPage" class="page">
+        <div class="page-header">
+            <span class="eyebrow"><i class="fa-solid fa-prescription-bottle-medical"></i> Pharmacy registration</span>
+            <h1>Register your Pharmacy</h1>
+            <p>Admin approval required before login.</p>
+        </div>
+        <form id="pharmacyRegisterForm" class="form-card">
+            <div class="form-grid">
+                <label>Pharmacy name <input id="phName" required></label>
+                <label>Email <input id="phEmail" type="email" required></label>
+                <label>Password <input id="phPassword" type="password" required minlength="6"></label>
+                <label>License number <input id="phLicense"></label>
+                <label>Phone <input id="phPhone"></label>
+                <label>Address <textarea id="phAddress" rows="2"></textarea></label>
+            </div>
+            <button class="btn btn-primary" type="submit">Submit for Approval <i class="fa-solid fa-paper-plane"></i></button>
+        </form>
+    </section>
+
+    <section id="pharmacyDashboardPage" class="page">
+        <div class="page-header">
+            <span class="eyebrow"><i class="fa-solid fa-gauge"></i> Pharmacy dashboard</span>
+            <h1 id="pharmacyWelcome">Welcome</h1>
+            <p>Inventory and dispensing overview.</p>
+        </div>
+        <div id="pharmacyStats" class="admin-stats"></div>
+    </section>
+
+    <section id="pharmacySearchPage" class="page">
+        <div class="page-header">
+            <span class="eyebrow"><i class="fa-solid fa-magnifying-glass"></i> Patient lookup</span>
+            <h1>Search by MCard ID</h1>
+            <p>Enter a patient's MCard ID to view prescriptions.</p>
+        </div>
+
+        <div class="panel">
+            <div class="flex-row-gap-10">
+                <input type="text" id="mcardSearchInput" placeholder="e.g. 2026-03-234567" class="mcard-search-input">
+                <button class="btn btn-primary" onclick="searchPatient()">
+                    <i class="fa-solid fa-magnifying-glass"></i> Search
+                </button>
+            </div>
+        </div>
+
+        <div id="patientSearchResult"></div>
+    </section>
+
+    <section id="pharmacyInventoryPage" class="page">
+        <div class="page-header-row">
+            <div>
+                <span class="eyebrow"><i class="fa-solid fa-boxes-stacked"></i> Inventory</span>
+                <h1>My Inventory</h1>
+                <p>Normal and special medicines in stock.</p>
+            </div>
+            <button class="btn btn-primary" onclick="openAddMedicine()"><i class="fa-solid fa-plus"></i> Add Medicine</button>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" data-category="all">All</button>
+            <button class="tab" data-category="normal">Normal</button>
+            <button class="tab" data-category="special">Special</button>
+        </div>
+
+        <div class="admin-search-wrap">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="inventorySearchInput" placeholder="Search medicines...">
+        </div>
+
+        <div id="inventoryList" class="inventory-grid"></div>
+    </section>
+
+    <section id="pharmacyHistoryPage" class="page">
+        <div class="page-header">
+            <span class="eyebrow"><i class="fa-solid fa-clock-rotate-left"></i> History</span>
+            <h1>Dispense History</h1>
+            <p>All medicines you've dispensed with feedback.</p>
+        </div>
+        <div id="pharmacyHistoryList"></div>
+    </section>
+
+    <section id="pharmacyProfilePage" class="page">
+        <div class="page-header">
+            <span class="eyebrow"><i class="fa-solid fa-user-pen"></i> Profile</span>
+            <h1>My Pharmacy Profile</h1>
+        </div>
+        <div id="pharmacyProfilePanel" class="panel"></div>
+    </section>
+
+    <section id="settingsPage" class="page">
+        <div class="page-header">
+            <span class="eyebrow"><i class="fa-solid fa-sliders"></i> Settings</span>
+            <h1>Settings</h1>
+        </div>
+        <div class="settings-grid">
+            <div class="settings-card">
+                <div class="settings-icon"><i class="fa-solid fa-moon"></i></div>
+                <div class="settings-info"><h3>Dark mode</h3><p>Toggle dark appearance.</p></div>
+                <button class="toggle-btn" onclick="toggleDarkMode()" type="button"><span class="toggle-circle"></span></button>
+            </div>
+            <div class="settings-card">
+                <div class="settings-icon lavender-settings"><i class="fa-solid fa-text-height"></i></div>
+                <div class="settings-info"><h3>Font size</h3><p>Adjust global text size.</p></div>
+                <div class="font-controls">
+                    <button onclick="changeFontSize(-1)">A−</button>
+                    <button onclick="resetFontSize()">A</button>
+                    <button onclick="changeFontSize(1)">A+</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>
+<script src="i18n.js"></script>
+<script src="sidebar.js"></script>
+<script src="pharmacy.js"></script>
+
+</body>
+</html>

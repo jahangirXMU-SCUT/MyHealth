@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCARD-PHR — Doctor Portal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="styles.css?v=4">
+</head>
+
+<body>
+
+    <div id="toastContainer" class="toast-container"></div>
+
+    <button class="sidebar-toggle" id="sidebarToggle" aria-label="Menu">
+        <i class="fa-solid fa-bars"></i>
+    </button>
+
+    <aside class="sidebar" id="sidebar"></aside>
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <main class="main-content" id="mainContent">
+       
+        <section id="doctorLoginPage" class="page">
+            <div class="auth-shell">
+                <div class="auth-card">
+                    <div class="auth-icon"><i class="fa-solid fa-user-doctor"></i></div>
+                    <h2>Doctor Login</h2>
+                    <p>Sign in to access your patient requests.</p>
+                    <form id="doctorLoginForm">
+                        <label>Email <input id="docLoginEmail" type="email" required></label>
+                        <label>Password <input id="docLoginPassword" type="password" required></label>
+                        <button class="btn btn-primary full" type="submit">Login <i
+                                class="fa-solid fa-arrow-right"></i></button>
+                    </form>
+                    <p class="form-footer">
+                        New doctor?
+                        <button type="button" class="text-btn" onclick="showPage('doctorRegister')">Register
+                            here</button>
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section id="doctorRegisterPage" class="page">
+            <div class="page-header">
+                <span class="eyebrow"><i class="fa-solid fa-user-doctor"></i> Doctor registration</span>
+                <h1>Join MCARD-PHR</h1>
+                <p>Admin approval is required before login.</p>
+            </div>
+            <form id="doctorRegisterForm" class="form-card">
+                <div class="form-grid">
+                    <label>Full name <input id="drFullName" required></label>
+                    <label>Email <input id="drEmail" type="email" required></label>
+                    <label>Password <input id="drPassword" type="password" required minlength="6"></label>
+                    <label>Degree <input id="drDegree" placeholder="e.g. MBBS, FCPS"></label>
+                    <label>Profession <input id="drProfession" placeholder="e.g. Cardiologist"></label>
+                    <label>Specialization <input id="drSpecialization"></label>
+                    <label>Last worked place <input id="drLastWorked"></label>
+                    <label>Experience (years) <input id="drExperience" type="number" min="0"></label>
+                    <label>License number <input id="drLicense"></label>
+                    <label>Consultation fee <input id="drFee" type="number" step="0.01" min="0"></label>
+                    <label>Profile picture <input id="drPicture" type="file" accept="image/*"></label>
+                    <label>Short bio <textarea id="drBio" rows="3"></textarea></label>
+                </div>
+                <button class="btn btn-primary" type="submit">Submit for Approval <i
+                        class="fa-solid fa-paper-plane"></i></button>
+            </form>
+        </section>
+
+        <section id="doctorDashboardPage" class="page">
+            <div class="page-header">
+                <span class="eyebrow"><i class="fa-solid fa-gauge"></i> Doctor dashboard</span>
+                <h1 id="doctorWelcome">Welcome, Doctor</h1>
+                <p>Quick overview of your appointments and patients.</p>
+            </div>
+            <div id="doctorStats" class="admin-stats"></div>
+        </section>
+
+        <section id="doctorRequestsPage" class="page">
+            <div class="page-header-row">
+                <div>
+                    <span class="eyebrow"><i class="fa-solid fa-bell"></i> Pending</span>
+                    <h1>Appointment Requests</h1>
+                    <p>Accept or reject patient appointment requests.</p>
+                </div>
+                <button class="btn btn-soft" onclick="loadDoctorRequests()"><i class="fa-solid fa-rotate"></i>
+                    Refresh</button>
+            </div>
+            <div id="doctorRequestsList"></div>
+        </section>
+
+        <section id="doctorPatientsPage" class="page">
+            <div class="page-header-row">
+                <div>
+                    <span class="eyebrow"><i class="fa-solid fa-users"></i> Patients</span>
+                    <h1>My Patients</h1>
+                    <p>All patients who have booked with you.</p>
+                </div>
+                <input type="text" id="patientSearchInput" placeholder="Search patients..." class="patient-search-input">
+            </div>
+            <div id="doctorPatientsList" class="doctor-grid"></div>
+        </section>
+
+        <section id="doctorSchedulePage" class="page">
+            <div class="page-header">
+                <span class="eyebrow"><i class="fa-solid fa-calendar-check"></i> Schedule</span>
+                <h1>My Schedule</h1>
+                <p>Confirmed and completed appointments.</p>
+            </div>
+            <div id="doctorScheduleList"></div>
+        </section>
+
+        <section id="doctorProfilePage" class="page">
+            <div class="page-header">
+                <span class="eyebrow"><i class="fa-solid fa-user-pen"></i> Profile</span>
+                <h1>My Profile</h1>
+                <p>Update your professional information.</p>
+            </div>
+            <div id="doctorProfilePanel" class="panel"></div>
+        </section>
+
+        <section id="settingsPage" class="page">
+            <div class="page-header">
+                <span class="eyebrow"><i class="fa-solid fa-sliders"></i> Settings</span>
+                <h1>Settings</h1>
+            </div>
+            <div class="settings-grid">
+                <div class="settings-card">
+                    <div class="settings-icon"><i class="fa-solid fa-moon"></i></div>
+                    <div class="settings-info">
+                        <h3>Dark mode</h3>
+                        <p>Toggle dark appearance.</p>
+                    </div>
+                    <button class="toggle-btn" onclick="toggleDarkMode()" type="button"><span
+                            class="toggle-circle"></span></button>
+                </div>
+                <div class="settings-card">
+                    <div class="settings-icon lavender-settings"><i class="fa-solid fa-text-height"></i></div>
+                    <div class="settings-info">
+                        <h3>Font size</h3>
+                        <p>Adjust global text size.</p>
+                    </div>
+                    <div class="font-controls">
+                        <button onclick="changeFontSize(-1)">A−</button>
+                        <button onclick="resetFontSize()">A</button>
+                        <button onclick="changeFontSize(1)">A+</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+    <script src="i18n.js"></script>
+    <script src="sidebar.js"></script>
+    <script src="doctor.js"></script>
+
+</body>
+
+</html>
